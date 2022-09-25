@@ -7,6 +7,8 @@ import 'page_manager.dart';
 import 'services/service_locator.dart';
 
 void main() async {
+  print(
+      '.\n*************\n\n\n\n\nJAGAA TEST LOG MAIN CALLED\n\n${DateTime.now()}\n\n\n\n\n*************');
   await setupServiceLocator();
   runApp(const MyApp());
 }

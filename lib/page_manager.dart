@@ -1,10 +1,14 @@
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/foundation.dart';
 import 'notifiers/play_button_notifier.dart';
 import 'notifiers/progress_notifier.dart';
 import 'notifiers/repeat_button_notifier.dart';
 import 'services/playlist_repository.dart';
+import 'services/service_locator.dart';
 
 class PageManager {
+  final _audioHandler = getIt<AudioHandler>();
+
   // Listeners: Updates going to the UI
   final currentSongTitleNotifier = ValueNotifier<String>('');
   final playlistNotifier = ValueNotifier<List<String>>([]);
@@ -16,15 +20,50 @@ class PageManager {
   final isShuffleModeEnabledNotifier = ValueNotifier<bool>(false);
 
   // Events: Calls coming from the UI
-  void init() {}
-  void play() {}
-  void pause() {}
+  void init() async {
+    await _loadPlaylist();
+    _listenToChangesInPlaylist();
+  }
+
+  Future<void> _loadPlaylist() async {
+    final songRepository = getIt<PlaylistRepository>();
+    final playlist = await songRepository.fetchInitialPlaylist();
+    final mediaItems = playlist
+        .map((song) => MediaItem(
+              id: song['id'] ?? '',
+              album: song['album'] ?? '',
+              title: song['title'] ?? '',
+              extras: {'url': song['url']},
+            ))
+        .toList();
+    _audioHandler.addQueueItems(mediaItems);
+  }
+
+  void _listenToChangesInPlaylist() {
+    _audioHandler.queue.listen((playlist) {
+      if (playlist.isEmpty) return;
+      final newList = playlist.map((item) => item.title).toList();
+      playlistNotifier.value = newList;
+    });
+  }
+
+  void play() => _audioHandler.play();
+
+  void pause() => _audioHandler.pause();
+
   void seek(Duration position) {}
+
   void previous() {}
+
   void next() {}
+
   void repeat() {}
+
   void shuffle() {}
+
   void add() {}
+
   void remove() {}
+
   void dispose() {}
 }
