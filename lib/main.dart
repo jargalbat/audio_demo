@@ -1,3 +1,4 @@
+import 'package:audio_demo/database/db_context.dart';
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:flutter/material.dart';
 import 'notifiers/play_button_notifier.dart';
@@ -7,8 +8,11 @@ import 'page_manager.dart';
 import 'services/service_locator.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   print(
       '.\n*************\n\n\n\n\nJAGAA TEST LOG MAIN CALLED\n\n${DateTime.now()}\n\n\n\n\n*************');
+
+  await DbContext().db;
   await setupServiceLocator();
   runApp(const MyApp());
 }
