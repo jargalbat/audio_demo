@@ -8,15 +8,28 @@ Future<AudioHandler> initAudioService() async {
     config: const AudioServiceConfig(
       androidNotificationChannelId: 'com.mycompany.myapp.audio',
       androidNotificationChannelName: 'Audio Service Demo',
-      androidNotificationOngoing: true,
-      androidStopForegroundOnPause: true,
-      // androidNotificationIcon
+      androidNotificationOngoing: false,
+      androidStopForegroundOnPause: false,
     ),
   );
 }
 
 class MyAudioHandler extends BaseAudioHandler {
-  final _player = AudioPlayer();
+  final _player = AudioPlayer(
+    audioLoadConfiguration: AudioLoadConfiguration(
+      darwinLoadControl: DarwinLoadControl(
+        preferredForwardBufferDuration: const Duration(seconds: 50),
+        preferredPeakBitRate: 192,
+        automaticallyWaitsToMinimizeStalling: false,
+        canUseNetworkResourcesForLiveStreamingWhilePaused: true,
+      ),
+      androidLoadControl: AndroidLoadControl(
+        maxBufferDuration: const Duration(seconds: 50),
+        minBufferDuration: const Duration(seconds: 50),
+      ),
+    ),
+  );
+
   final _playlist = ConcatenatingAudioSource(children: []);
 
   MyAudioHandler() {
